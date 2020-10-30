@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Bus System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container" id="home">
+            <nav class="flex items-center justify-between">
+                <div class="left flex items-center">
+                    <div class="branding">
+                        <img src="./images/logo.svg" alt="">
+                    </div>
+                    <div id="link">
+                        <a href="#home">Home</a>
+                        <a href="#">About</a>
+                        <a href="#">Maps</a>
+                        <a href="#">Routes</a>
+                        <!-- <a href="#blog">Blog</a> -->
+                    </div>
+                </div>
+                <div class="right"><a href="#foot">
+                    <button class="btn btn-primary">Contact</button></a>
+                </div>
+            </nav>
+            <div class="hero flex items-center justify-between">
+                <div class="left flex-1 flex justify-center">
+                    <img src="./images/bus.png" alt="">
+                </div>
+                <div class="right flex-1">
+                
+                    <h1>Railway Bus<br/><span>Services</span></h1>
+                    <div class="topnav">
+                        <h5>Search Bus :</h5>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <div id="main">
+                        <h6 >Details Required:- </h6>
+                        <div id="workspace">
+                            <div id="pnr" class="box">
+                            Enter PNR No :- 
+                            <input id="pnrno" type="number"/><br/><br/>
+                            Select Your Stop :- 
+                            <select id="stop"></select><br/>    
+                            Select Your Station :- 
+                            <select id="stat"></select><br/><br/>
+                            Enter Arrival Time :-
+                            <input id="time" type="time"/><br/><br/>
+                            <button class="btn btn-secondary" id="search">Search</button>
+                            </div>
+                             
+                             
+                            
+                        </div>
+                    </div>
+                  	
+                </div>
+                
+            </div>
+            <!-- bus output -->
+                <div class="box">                
+                	<h3>Suggested Buses</h3>
+   					<div id="myProgress">		 
+     					<div id="bus0"></div>
+    				</div>
+    			</div>
+        </div>
+         
+        
+    </header>
+    <div id="foot" class="footer flex">
+        <p>© Meerut Institute of Engineering and Technology, Meerut<br/>
+        Designed by:Hardik Sharma</p>
+        <div class="social flex-1">
+            <a href="https://github.com/hardikshah197"><img src="./images/github.png" alt=""></a>
+            <a href="https://www.facebook.com/HardyShah197"><img src="./images/facebook.png" alt=""></a>
+            <a href="https://twitter.com/"><img src="./images/twitter.png" alt=""></a>
+            <a href="https://www.instagram.com/_hardik_007__/"><img src=".\images\instagram.png" alt=""></a>
+            <a href="https://www.linkedin.com/in/hardik-sharma-2419841a3"><img src="./images/linkedin.png" alt=""></a>
+        </div>
+    </div>
+    <script>
+    		$(document).ready(function(){
+    			$.get("GenUI", {"id":"showStops"}).done(function(response){
+    				$("#stop").html(response);
+    			});
+    			$.get("GenUI", {"id":"showStat"}).done(function(response){
+    				$("#stat").html(response);
+    			});
+    		});
+    		$("#search").click(function(){
+    			$.get("GenUI", {"id":"showBus",
+    				"pnr": document.getElementById("pnrno").value,
+    				"time": document.getElementById("time").value,
+    				"stop": document.getElementById("stop").value,
+    				"stat": document.getElementById("stat").value
+    				}).done(function(response){
+    					
+    				printBus(response);
+    				});
+    		});
+    		function printBus(response){
+    			var buses= JSON.parse(response);
+    		      function printprog() {
+    		          var busCount = 0;
+
+    		          buses.map((bus) => {
+    		            busCount++;
+
+    		            var busDiv = document.createElement("div");
+    		            busDiv.setAttribute("id", "bus" + busCount);
+
+    		            document.getElementById("bus" + (busCount - 1)).append(busDiv);
+
+    		            var childDiv = document.createElement("div");
+    		            childDiv.setAttribute("id", "bus" + busCount + "stop0");
+
+    		            var bnlab = document.createElement("label");
+    		            bnlab.innerHTML = "<b> BUS NUMBER-  " + bus.busName + "</b>";
+
+    		            childDiv.append(document.createElement("br"));
+    		            childDiv.appendChild(bnlab);
+    		            childDiv.append(document.createElement("br"));
+
+    		            busDiv.appendChild(childDiv);
+
+    		            displayInfo();
+    		            function displayInfo() {
+    		              var count = 0;
+    		              var breaks = bus.stops.length;
+    		              var width = 1000 / breaks;
+
+    		              initStop();
+
+    		              function initStop() {
+    		                var outline = document.getElementById("myProgress");
+
+    		                bus.stops.map((stop) => {
+    		                  count++;
+
+    		                  var cont = document.createElement("div");
+    		                  cont.style.display = "flex";
+    		                  cont.style.flexDirection = "row";
+    		                  cont.setAttribute("id", "bus" + busCount + "stop" + count);
+    		                  var lab = document.createElement("label");
+
+    		                  lab.innerHTML = stop.name + "   " + stop.time;
+
+    		                  var strip = document.createElement("div");
+    		                  strip.style.height = 5 + "px";
+    		                  strip.style.width = 50 + "px";
+    		                  strip.style.marginTop = 6 + "px";
+    		                  if (count < breaks)
+    		                    if (bus.stops[count].status === 1)
+    		                      strip.style.backgroundColor = "#228B22";
+    		                    else strip.style.backgroundColor = "#aaa";
+
+    		                  cont.appendChild(lab);
+    		                  cont.appendChild(strip);
+    		                  document
+    		                    .getElementById("bus" + busCount + "stop" + (count - 1))
+    		                    .append(cont);
+    		                });
+    		              }
+    		            }
+    		          });
+    		        }
+
+    		        var bigDiv = document.getElementById("myProgress");
+    		        if (document.getElementById("bus1") != null) {
+    		          var newBus0 = document.createElement("div");
+
+    		          document.getElementById("bus0").replaceWith(newBus0);
+    		          newBus0.setAttribute("id", "bus0");
+    		        }
+    		        printprog();	
+    		}
+    </script>
+</body>
+</html>
